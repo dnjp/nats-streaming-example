@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: publisher
+  name: publisher
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: publisher
+  template:
+    metadata:
+      labels:
+        run: publisher
+      namespace: default
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - command:
+        - /app/app
+        args:
+        - -p
+        envFrom:
+        - configMapRef:
+            name: config
+            optional: false
+        env:
+        - name: PUBLISHER_PORT
+          value: "8080"
+        image: app:local
+        name: publisher
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5

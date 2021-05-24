@@ -1,0 +1,5 @@
+resources:
+- cluster.yaml
+- streaming-cluster.yaml
+- config.yaml
+- nats.yaml

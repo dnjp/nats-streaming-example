@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: subscriber
+  name: subscriber
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: subscriber
+  template:
+    metadata:
+      labels:
+        run: subscriber
+      namespace: default
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - command:
+        - /app/app
+        args:
+        - -s
+        envFrom:
+        - configMapRef:
+            name: config
+            optional: false
+        env:
+        - name: SUBSCRIBER_PORT
+          value: "8081"
+        image: app:local
+        name: subscriber
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8081
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
